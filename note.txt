@@ -1,0 +1,57 @@
+Langchain Agent
+
+Agent = tool을 사용하는 친구
+
+계산 전문 챗봇
+query: 1 + 1
+query => llm => output
+
+query: ~~~~~~
+llm의 능력부족
+=> 다른 서비스
+Mathematica MatLab
+
+query => MatLab으로 계산해 => llm => output
+
+query => internet search => llm => output
+
+배달 챗봇
+query => 배달의 민족 => llm => output
+
+
+Agent 
+- 기능: tool (function, 외부 api, rag_chain(retriever))
+
+3종류
+CBT / Transcript / Psychological Manual
+input => CBT
+input => CBT, Transcript
+
+flexible context retrieval
+
+구현방법
+CBT: data... => indexing (table) => tool: CBT에서 정보를 가져오는 기능
+Transcript: data... => indexing (table) => tool: transcript에서 제일 비슷한 예시를 가져와서 답변을 리턴하는 기능
+Psyc: data... => indexing (table) => tool: Pscy에서 ...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
