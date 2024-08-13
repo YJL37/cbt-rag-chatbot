@@ -6,6 +6,8 @@ from CbtRAG.vector_db_manager import VectorDBManager
 from langchain_google_genai import GoogleGenerativeAI, ChatGoogleGenerativeAI
 from langchain_core.prompts import PromptTemplate
 
+from langgraph.prebuilt import create_react_agent
+
 class CbtRAG:
     """
     @args
@@ -16,7 +18,7 @@ class CbtRAG:
         # temperature = llm이 얼마나 창의적이냐 (0 ~ 1, 0.7)
         # llm: llm for generate multiple queries
         self.llm = GoogleGenerativeAI(model = "gemini-1.5-flash", temperature=0.7)
-        # chat_llm: llm for mail chatbot
+        # chat_llm: llm for main chatbot
         self.chat_llm = ChatGoogleGenerativeAI(model = "gemini-1.5-flash", temperature=0)
 
         # vectorDBManager: vectorDB Table들을 관리
@@ -96,6 +98,25 @@ class CbtRAG:
         for chunk in chain.stream({"question": query}):
             sys.stdout.write(chunk)
             sys.stdout.flush()
+
+    # TODO change dataset_name to list
+    def query_with_tools(self, query, dataset_name):
+        # create tool
+        tool = self.vector_db_manager.create_rag_chain_tool_with_collection(dataset_name, self.chat_llm)
+        tools = [tool]
+
+        messages = [
+            ("human", query),
+        ]
+
+        agent = create_react_agent(self.chat_llm, tools)
+
+        for chunk in agent.stream({"messages": messages}, stream_mode="values"):
+            chunk["messages"][-1].pretty_print()
+
+        # self.chat_llm.bind_tools(tools)
+ 
+        # print(self.chat_llm.invoke(query))
 
     
     # helpers

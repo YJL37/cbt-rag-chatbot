@@ -11,6 +11,11 @@ from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain.retrievers.multi_query import MultiQueryRetriever
 import ast
 from langchain import hub
+from langchain.tools.retriever import create_retriever_tool
+
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnablePassthrough
 
 
 # Output parser will split the LLM result into a list of queries
@@ -151,14 +156,62 @@ class VectorDBManager:
 
         # 2. multiple queries => retrieve context from collection
 
-    def create_tool_with_collection(self, collection_name, llm):
+    def create_tool_with_collection(self, collection_name):
         # get collection
         vector_store = Chroma(
             client=self.client,
             collection_name=collection_name,
             embedding_function=self.embedding_model,
         )
-            
+
+        tool = create_retriever_tool(
+            vector_store.as_retriever(),
+            "cbt_knowledge_retriever",
+            "searches and returns information about cognitive behavioral therapy",
+        )
+
+        return tool
+    
+    def create_rag_chain_tool_with_collection(self, collection_name, llm):
+        # get collection
+        vector_store = Chroma(
+            client = self.client, 
+            collection_name = collection_name,
+            embedding_function = self.embedding_model,
+        )
+
+        system_prompt = """
+            You are an assistant for question-answering tasks.
+            Use the below context to answer the question. If
+            you don't know the answer, say you don't know.
+            Use three sentences maximum and keep the answer
+            concise.
+
+            Question: {question}
+
+            Context: {context}
+            """
+
+        prompt = hub.pull("rlm/rag-prompt")
+        retriever = vector_store.as_retriever()
+        rag_chain = (
+            {
+                "context": retriever | format_docs,
+                "question": RunnablePassthrough(), 
+            }
+        | prompt
+        | llm
+        | StrOutputParser()
+        )
+    
+        print("RAG Chain Schema: ", rag_chain.input_schema.schema())
+
+        rag_tool = rag_chain.as_tool(
+            name="cbt_knowledge_expert",
+            description="Generates concise answers to questions about cognitive behavioral therapy.",
+        )
+
+        return rag_tool
 
     # helpers
     def list_collections(self):
@@ -189,3 +242,6 @@ def str_to_document(text: str):
 # TODO: Move this to a utils file
 def document_to_str(doc: Document):
     return f"page_content='{doc.page_content}' metadata={doc.metadata}"
+
+def format_docs(docs):
+    return "\n\n".join(doc.page_content for doc in docs)

@@ -30,14 +30,14 @@ if __name__ == "__main__":
     #                         )
     
 
-    # sample_query = "What is CBT?"
+    sample_query = "What is CBT?"
     # contexts = cbt_rag.retrieve_contexts(
     #     dataset_name="cbt_collection", query = sample_query
     # )
     # print("Retrieved Contexts: " )
     # pretty_print_docs(contexts)
 
-    cbt_rag.test_query("What is 1 + 1?")
+    cbt_rag.query_with_tools(sample_query, "cbt_collection")
     pass
 
 
