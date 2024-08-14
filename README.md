@@ -11,5 +11,5 @@ python3 -3.12 -m venv cbt-rag
 
 # Tech Stacks
 
-
+df
 
