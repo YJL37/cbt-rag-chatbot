@@ -35,10 +35,8 @@ Transcript: data... => indexing (table) => tool: transcript에서 제일 비슷�
 Psyc: data... => indexing (table) => tool: Pscy에서 ...
 
 
-
-
-
-
+<Additional Dependencies>
+- click
 
 
 
