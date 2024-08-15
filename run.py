@@ -31,6 +31,8 @@ def cli(mode):
     # eval mode
     # chat mode
 
+    cbt_rag = CbtRAG(config = config)
+
 
 if __name__ == "__main__":
     # .env file should contain Google Generative AI API key
