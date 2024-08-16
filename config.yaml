@@ -1,4 +1,3 @@
-
 datasets:
   cbt_knowledge_collection:
     description: "[TODO: Agent Description]"
@@ -16,12 +15,21 @@ datasets:
     description: ""
     database_type: "vector"
     files:
-      - path: "data/socratic_questioning/SOCRATIC QUESTIONS.pdf"
+      - path: "./data/socratic_questioning/SOCRATIC QUESTIONS.pdf"
         type: "pdf"
-      - path: "data/socratic_questioning/Socratic-Questioning-Techniques.pdf"
+      - path: "./data/socratic_questioning/Socratic-Questioning-Techniques.pdf"
         type: "pdf"
-      - path: data/socratic_questioning/SocraticQuestioning2006.pdf"
+      - path: "./data/socratic_questioning/SocraticQuestioning2006.pdf"
         type: "pdf"
-
+  psychotherapy_collection:
+    description: ""
+    database_type: "graph"
+    files:
+      - path: "./data/psychotherapy/an_introduction_to_counseling.pdf"
+        type: "pdf"
+      - path: "./data/psychotherapy/Theory and Practice of Counseling and Psychotherapy- Corey- 9ed.pdf"
+        type: "pdf"
+      - path: "./data/psychotherapy/What_is_psychotherapy_today_Overview_of_psychother.pdf"
+        type: "pdf"
       
       
