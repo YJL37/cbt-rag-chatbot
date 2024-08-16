@@ -3,13 +3,8 @@ from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
 
 def load_yaml_config(config_file_path):
-    """Loads YAML configuration from a file, handling potential errors.
-
-    @args:
-      config_file_path: The path to the YAML configuration file.
-
-    @returns:
-      The parsed YAML data as a Python dictionary, or None if an error occurs.
+    """
+    Loads YAML configuration from a file, handling loading errors
     """
 
     try:
@@ -33,14 +28,12 @@ class Config:
     """
     RAG Configuration manager class
     -  please use getter functions to access configuration values
-
-    @args
-    - config: processed .yaml file with load_yaml_config() file
     """
 
     def __init__(self, config_path):
         self.config = load_yaml_config(config_path)
 
+    # dataset related functions --------------------------------------------
     def get_dataset_names(self):
         return self.config["datasets"].keys()
 
@@ -64,3 +57,22 @@ class Config:
         Get dataset files from configuration
         """
         return self.config["datasets"][dataset_name]["files"]
+
+    # query option related functions ---------------------------------------
+    def get_query_options(self):
+        return self.config["options"]
+
+    def get_multi_query_expansion(self):
+        return self.config["options"]["pre_retrieval"]["multi_query_expansion"]
+
+    def get_retrieval_datasets(self):
+        return self.config["options"]["retrieval_datasets"]
+
+    def get_context_top_k(self):
+        return self.config["options"]["post_retrieval"]["context_top_k"]
+
+    def get_context_reranking(self):
+        return self.config["options"]["post_retrieval"]["context_reranking"]
+
+    def get_context_compression(self):
+        return self.config["options"]["post_retrieval"]["context_compression"]

@@ -32,4 +32,13 @@ datasets:
       - path: "./data/psychotherapy/What_is_psychotherapy_today_Overview_of_psychother.pdf"
         type: "pdf"
       
-      
+options:
+  pre_retrieval:
+    multi_query_expansion: true
+  retrieval_datasets:
+    - "cbt_knowledge_collection"
+    - "socratic_questioning_collection"
+  post_retrieval:
+    context_top_k: 5
+    context_reranking: false
+    context_compression: false

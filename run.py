@@ -8,6 +8,7 @@ import click
 # python run.py --eval
 # python run.py --chat
 
+
 load_dotenv()
 
 
@@ -48,6 +49,30 @@ def cli(mode):
                 cbt_rag.create_indexing(dataset_name=dataset)
                 click.echo(f"Indexing for dataset: {dataset} created successfully!")
 
+    # 2. Context Retrieval (eval)
+    click.echo("")
+    click.echo("Ready to query with following options!")
+    # pre-retrieval options
+    click.echo("    Pre-Retrieval Options:")
+    multi_query_expansion = cbt_rag.get_multi_query_expansion()
+    click.echo(f"       Multi Query Expansion: {multi_query_expansion}")
+
+    # post-retrieval options
+    click.echo("    Post-Retrieval Options:")
+    context_top_k = cbt_rag.get_context_top_k()
+    context_reranking = cbt_rag.get_context_reranking()
+    context_compression = cbt_rag.get_context_compression()
+
+    click.echo(f"       Context Top K: {context_top_k}")
+    click.echo(f"       Context Reranking: {context_reranking}")
+    click.echo(f"       Context Compression: {context_compression}")
+
+    # query db options
+    click.echo("    Query DB Options:")
+    datasets = cbt_rag.get_retrieval_datasets()
+    for dataset in datasets:
+        click.echo(f"       - {dataset}")
+
     # eval mode
     # chat mode
 
@@ -57,7 +82,7 @@ if __name__ == "__main__":
     if "GOOGLE_API_KEY" not in os.environ:
         raise ValueError("Please set GOOGLE_API_KEY in .env file")
 
-    cli()
+    cli()  # pylint: disable=no-value-for-parameter
 
     # cbt_rag = CbtRAG()
 

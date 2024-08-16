@@ -39,9 +39,9 @@ Psyc: data... => indexing (table) => tool: Pscy에서 ...
 
 <Note on Program Flow>
 python run.py --eval을 실행하면 무슨일이 벌어질까?
-1) config.yaml을 이용해 CbtRAG instance를 생성한다.
+1) config.yaml을 이용해 CbtRAG instance를 생성한다. [DONE]
 
-2) indexing을 만들꺼냐? 라는 옵션을 물어본다.
+2) indexing을 만들꺼냐? 라는 옵션을 물어본다. [DONE]
     만들겠다고하면, config.yaml의 dataset들을 나열하면서 각각 만들꺼니? 물어본다.
     CbtRAG instance의 create_indexing()을 호출한다.
 

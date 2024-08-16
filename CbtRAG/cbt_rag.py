@@ -40,16 +40,12 @@ class CbtRAG:
         print(
             f"==== Create Indexing '{dataset_name}' at '{dataset_type} database' ===="
         )
-        # Load Document
-        # print(load_pdf(self.path_name)[0])
-
-        # create vector db
-        # upload docs to vector db
-        # collection_name = "cbt_collection"
 
         if dataset_type == "vector":
+            # create collection at ChromaDB client
             self.vector_db_manager.init_db(collection_name=dataset_name)
 
+            # process pdf files into manageable documents (text tokens)
             docs = []
             for file in files:
                 pdf_manager = PDFManager(path_name=file["path"])
@@ -58,6 +54,7 @@ class CbtRAG:
                 # process pdf
                 docs.extend(pdf_manager.process_pdf(pages))
 
+            # upload docs to vector database
             self.vector_db_manager.upload_docs(docs=docs, collection_name=dataset_name)
 
         elif dataset_type == "graph":
@@ -138,3 +135,18 @@ class CbtRAG:
     # helpers for CLI
     def get_datasets(self):
         return self.config.get_dataset_names()
+
+    def get_multi_query_expansion(self):
+        return self.config.get_multi_query_expansion()
+
+    def get_context_top_k(self):
+        return self.config.get_context_top_k()
+
+    def get_context_reranking(self):
+        return self.config.get_context_reranking()
+
+    def get_context_compression(self):
+        return self.config.get_context_compression()
+
+    def get_retrieval_datasets(self):
+        return self.config.get_retrieval_datasets()
