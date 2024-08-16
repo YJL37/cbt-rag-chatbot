@@ -1,20 +1,20 @@
 
 datasets:
   cbt_knowledge_collection:
-    description: "[TODO: Agent Description]",
-    database_type: "vector",
+    description: "[TODO: Agent Description]"
+    database_type: "vector"
     files:
-      - path: "./data/cbt_and_techniques/Cognitive-Behavioral-Therapy-Techniques-and-Strategies-Intro-Sample.pdf",
-        type: "pdf",
-      - path: "./data/cbt_and_techniques/Cognitive_Behavioral_Therapy_Strategies.pdf",
-        type: "pdf",
-      - path: "./data/cbt_and_techniques/therapists_guide_to_brief_cbtmanual.pdf"
+      - path: "./data/cbt_knowledge/Cognitive-Behavioral-Therapy-Techniques-and-Strategies-Intro-Sample.pdf"
         type: "pdf"
-      - path: ""./data/cbt_and_techniques/wellbeing-team-cbt-workshop-booklet-2016.pdf"
+      - path: "./data/cbt_knowledge/Cognitive_Behavioral_Therapy_Strategies.pdf"
+        type: "pdf"
+      - path: "./data/cbt_knowledge/therapists_guide_to_brief_cbtmanual.pdf"
+        type: "pdf"
+      - path: "./data/cbt_knowledge/wellbeing-team-cbt-workshop-booklet-2016.pdf"
         type: "pdf"
   socratic_questioning_collection:
-    description: "",
-    database_type: "vector",
+    description: ""
+    database_type: "vector"
     files:
       - path: "data/socratic_questioning/SOCRATIC QUESTIONS.pdf"
         type: "pdf"

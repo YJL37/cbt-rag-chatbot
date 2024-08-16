@@ -1,9 +1,9 @@
 import os
-# from CbtRAG import CbtRAG
+from CbtRAG import CbtRAG
 from dotenv import load_dotenv
 
 # command line interface
-import click 
+import click
 
 # python run.py --eval
 # python run.py --chat
@@ -18,27 +18,44 @@ def pretty_print_docs(docs):
         )
     )
 
+
 # mode (required): 'eval' for evaluation, 'chat' for chat mode
 @click.command()
-@click.option('--eval', 'mode', flag_value='eval', help="Run in evaluation mode.")
-@click.option('--chat', 'mode', flag_value='chat', help="Run in chat mode.")
+@click.option("--eval", "mode", flag_value="eval", help="Run in evaluation mode.")
+@click.option("--chat", "mode", flag_value="chat", help="Run in chat mode.")
 def cli(mode):
     if mode != "eval" and mode != "chat":
         raise ValueError("Please specify mode as 'eval' or 'chat'")
 
     click.echo("Welcome to CBT-RAG chatbot ✨")
 
+    config = "./config.yaml"
+    cbt_rag = CbtRAG(config=config)
+
+    # 1. Create Indexing
+    click.echo("")
+    createIndex = click.prompt(
+        "Do you want to create indexing? (y/n)", type=str, default="n"
+    )
+    if createIndex == "y":
+        click.echo("==== Loading Dataset Configurations... ====")
+        datasets = cbt_rag.get_datasets()
+        for dataset in datasets:
+            val = click.prompt(
+                f"Create indexing for dataset: {dataset}? (y/n)", type=str, default="n"
+            )
+            if val == "y":
+                cbt_rag.create_indexing(dataset_name=dataset)
+                click.echo(f"Indexing for dataset: {dataset} created successfully!")
+
     # eval mode
     # chat mode
-
-    cbt_rag = CbtRAG(config = config)
 
 
 if __name__ == "__main__":
     # .env file should contain Google Generative AI API key
     if "GOOGLE_API_KEY" not in os.environ:
         raise ValueError("Please set GOOGLE_API_KEY in .env file")
-
 
     cli()
 

@@ -1,6 +1,5 @@
 import yaml
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
 
 def load_yaml_config(config_file_path):
@@ -39,8 +38,8 @@ class Config:
     - config: processed .yaml file with load_yaml_config() file
     """
 
-    def __init__(self, config):
-        self.config = load_yaml_config(config)
+    def __init__(self, config_path):
+        self.config = load_yaml_config(config_path)
 
     def get_dataset_names(self):
         return self.config["datasets"].keys()

@@ -33,34 +33,38 @@ class CbtRAG:
             KnowledgeGraphManager()
         )  # Neo4j instance (single graph db)
 
-    def create_indexing(self, dataset_name, path_names):
-        print(f"==== Create Indexing '{dataset_name}' ====")
+    def create_indexing(self, dataset_name):
+        dataset_type = self.config.get_dataset_type(dataset_name)
+        files = self.config.get_dataset_files(dataset_name)
+
+        print(
+            f"==== Create Indexing '{dataset_name}' at '{dataset_type} database' ===="
+        )
         # Load Document
         # print(load_pdf(self.path_name)[0])
 
         # create vector db
         # upload docs to vector db
         # collection_name = "cbt_collection"
-        self.vector_db_manager.init_db(collection_name=dataset_name)
 
-        docs = []
-        for path_name in path_names:
-            pdf_manager = PDFManager(path_name=path_name)
-            # load pdf
-            pages = pdf_manager.load_pdf()
-            # process pdf
-            docs.extend(pdf_manager.process_pdf(pages))
+        if dataset_type == "vector":
+            self.vector_db_manager.init_db(collection_name=dataset_name)
 
-        self.vector_db_manager.upload_docs(docs=docs, collection_name=dataset_name)
+            docs = []
+            for file in files:
+                pdf_manager = PDFManager(path_name=file["path"])
+                # load pdf
+                pages = pdf_manager.load_pdf()
+                # process pdf
+                docs.extend(pdf_manager.process_pdf(pages))
 
-        # VectorDBManager.upload_docs(docs)
-        # VectorDBManager.retrieve_context(query)
+            self.vector_db_manager.upload_docs(docs=docs, collection_name=dataset_name)
 
-        # create knowledge graph
-        # upload docs to graph
-        # KnowledgeGraphManager
-        # KnowledgeGraphManager.upload_docs(docs)
-        # KnowledgeGraphManager.retrieve_context(query)
+        elif dataset_type == "graph":
+            pass
+
+        else:
+            raise ValueError("Invalid dataset type")
 
     def retrieve_contexts(self, dataset_name, query):
         """
@@ -130,3 +134,7 @@ class CbtRAG:
     # helpers
     def list_vector_db_collections(self):
         return self.vector_db_manager.list_collections()
+
+    # helpers for CLI
+    def get_datasets(self):
+        return self.config.get_dataset_names()
