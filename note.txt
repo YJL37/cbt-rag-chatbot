@@ -58,6 +58,10 @@ Post-retrieval
 - Context Reranker: True/False
 - Context compression: True/False
 
+eval 모드면
+- context retrieval을 수동으로 해야한다. final_chain.invoke()로 하면 안된다.
+- deepeval 라이브러리를 다시 확인해야봐야함.
+
 4) evaluate?????????
 
 

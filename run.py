@@ -53,12 +53,12 @@ def cli(mode):
     click.echo("")
     click.echo("Ready to query with following options!")
     # pre-retrieval options
-    click.echo("    Pre-Retrieval Options:")
+    click.echo("    Pre-Retrieval:")
     multi_query_expansion = cbt_rag.get_multi_query_expansion()
     click.echo(f"       Multi Query Expansion: {multi_query_expansion}")
 
     # post-retrieval options
-    click.echo("    Post-Retrieval Options:")
+    click.echo("    Post-Retrieval:")
     context_top_k = cbt_rag.get_context_top_k()
     context_reranking = cbt_rag.get_context_reranking()
     context_compression = cbt_rag.get_context_compression()
@@ -68,10 +68,23 @@ def cli(mode):
     click.echo(f"       Context Compression: {context_compression}")
 
     # query db options
-    click.echo("    Query DB Options:")
+    click.echo("    Indexing:")
     datasets = cbt_rag.get_retrieval_datasets()
     for dataset in datasets:
         click.echo(f"       - {dataset}")
+
+    # TESTING
+    sample_query = (
+        "I failed my exam. I think everyone else is smarter than me. What should I do?"
+    )
+
+    sample_query_2 = "What is CBT?"
+
+    click.echo("")
+    click.echo(f"TESTING: Querying with sample query: {sample_query}")
+
+    click.echo("Creating RAG Chain...")
+    cbt_rag.create_cbt_rag_chain(query=sample_query)
 
     # eval mode
     # chat mode

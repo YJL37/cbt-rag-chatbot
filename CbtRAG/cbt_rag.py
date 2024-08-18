@@ -10,6 +10,8 @@ from langchain_core.prompts import PromptTemplate
 
 from langgraph.prebuilt import create_react_agent
 
+from langgraph.checkpoint.memory import MemorySaver
+
 
 class CbtRAG:
     """
@@ -48,6 +50,7 @@ class CbtRAG:
             # process pdf files into manageable documents (text tokens)
             docs = []
             for file in files:
+                print("    Processing file: " + file["path"])
                 pdf_manager = PDFManager(path_name=file["path"])
                 # load pdf
                 pages = pdf_manager.load_pdf()
@@ -93,6 +96,70 @@ class CbtRAG:
         # self.graph_manager.retrieve_contexts(
 
         # )
+
+    # Create complete RAG chain with Agents
+    def create_cbt_rag_chain(self, query):
+        # helpful link: https://python.langchain.com/v0.2/docs/tutorials/qa_chat_history/#agents
+        databases = self.config.get_retrieval_datasets()
+
+        tools = []
+
+        # 1. create tools with each database
+        for database in databases:
+            # get database type
+            dataset_name = database["dataset_name"]
+            database_type = self.config.get_dataset_type(dataset_name)
+
+            if database_type == "vector":
+                tool = self.vector_db_manager.create_tool_with_collection(database)
+                tools.append(tool)
+
+            elif database_type == "graph":
+                pass
+
+            else:
+                raise ValueError("Invalid database type")
+
+        # DEBUG: Tool Testing invoke
+        # for tool in tools:
+        #     print(f"    Try invoking tool '{tool.name}'...")
+        #     result = tool.invoke(query)
+        #     print(f"    Result: {result}")
+        #     print("")
+
+        # DEBUG: Check retrieved contexts [THIS CODE WILL BE USED AT EVAL MODE LATER]
+        # for database in databases:
+        #     dataset_name = database["dataset_name"]
+        #     print(f"    Retrieving contexts from '{dataset_name}'...")
+        #     contexts = self.vector_db_manager.retrieve_contexts(query, dataset_name)
+        #     print(f"    Retrieved contexts: {len(contexts)}")
+
+        #     for context in contexts:
+        #         print(context)
+
+        #     print("")
+
+        # 2. combine tools together as agents
+        system_instruction = """You are a mental health counseling chatbot specialized in cognitive behavioral therapy (CBT). 
+
+        IMPORTANT: For EVERY response, you MUST use EVERY tools before generating your answer. You MUST use both "cognitive_behavioral_therapy_retriever" and "socratic_questioning_retriever" tools. Do not respond without first calling a tool.
+
+        Your main clients are teenagers and young adults in their early 20s who are familiar with social media. You are here to help them with their mental health issues. You can provide them with information about mental health, help them with their problems, and provide them with resources to help them.
+
+        Remember:
+        1. Always use a tool first.
+        2. Based on the tool's output, formulate your response.
+        3. Speak in a way that resonates with younger individuals familiar with social media.
+        4. Focus on CBT techniques in your advice and explanations.
+        """
+
+        cbt_chatbot = create_react_agent(
+            model=self.chat_llm, tools=tools, state_modifier=system_instruction
+        )
+
+        # TEST: with sample query
+        inputs = {"messages": [("user", query)]}
+        print_stream(cbt_chatbot.stream(inputs, stream_mode="values"))
 
     # TEST
     def test_query(self, query):
@@ -150,3 +217,12 @@ class CbtRAG:
 
     def get_retrieval_datasets(self):
         return self.config.get_retrieval_datasets()
+
+
+def print_stream(stream):
+    for s in stream:
+        message = s["messages"][-1]
+        if isinstance(message, tuple):
+            print(message)
+        else:
+            message.pretty_print()

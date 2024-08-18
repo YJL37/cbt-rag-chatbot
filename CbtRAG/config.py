@@ -65,9 +65,6 @@ class Config:
     def get_multi_query_expansion(self):
         return self.config["options"]["pre_retrieval"]["multi_query_expansion"]
 
-    def get_retrieval_datasets(self):
-        return self.config["options"]["retrieval_datasets"]
-
     def get_context_top_k(self):
         return self.config["options"]["post_retrieval"]["context_top_k"]
 
@@ -76,3 +73,11 @@ class Config:
 
     def get_context_compression(self):
         return self.config["options"]["post_retrieval"]["context_compression"]
+
+    def get_retrieval_datasets(self):
+        """
+        Get retrieval datasets from configuration
+
+        keys: dataset_name, retriever_name, retriever_description
+        """
+        return self.config["options"]["retrieval_datasets"]  # list of dictionaries

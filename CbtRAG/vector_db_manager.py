@@ -1,4 +1,4 @@
-from langchain_google_genai import ( GoogleGenerativeAIEmbeddings )
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_chroma import Chroma
 import chromadb
 from uuid import uuid4
@@ -34,17 +34,16 @@ class VectorDBManager:
 
     def init_db(self, collection_name):
         # create collection
-        print("==== Initializing database with collection: " + collection_name + " ====")
+        print("    Initializing database with collection: " + collection_name + "...")
         existing_collections = self.client.list_collections()
         if any(
-            collection.name == collection_name
-            for collection in existing_collections
+            collection.name == collection_name for collection in existing_collections
         ):
             print(
-                f"Collection '{collection_name}' already exists. Deleting existing collection."
+                f"    Collection '{collection_name}' already exists. Deleting existing collection."
             )
             self.client.delete_collection(collection_name)
-            
+
         # create new collection (table)
         vector_store = Chroma(
             client=self.client,
@@ -52,20 +51,19 @@ class VectorDBManager:
             embedding_function=self.embedding_model,
         )
 
-        print(f"Created new collection '{collection_name}'")
+        print(f"    Successfully created new collection '{collection_name}'")
 
         return
 
     def upload_docs(self, docs, collection_name):
         # error handling: collection name doesn't exist in client
+        print("    Uploading documents to collection: " + collection_name + "...")
         existing_collections = self.client.list_collections()
         if not any(
-            collection.name == collection_name
-            for collection in existing_collections
+            collection.name == collection_name for collection in existing_collections
         ):
-            print ("error handling: collection name doesn't exist in client")
-            return False
-        
+            raise ValueError("    Collection name doesn't exist in client")
+
         # get collection
         vector_store = Chroma(
             client=self.client,
@@ -73,21 +71,19 @@ class VectorDBManager:
             embedding_function=self.embedding_model,
         )
         uuids = [str(uuid4()) for _ in range(len(docs))]
-        vector_store.add_documents(documents = docs, ids=uuids)
-        print(
-            f"Added documents to collection " + collection_name
-        )
+        vector_store.add_documents(documents=docs, ids=uuids)
+        print(f"    Successfully uploaded documents to '{collection_name}'")
 
         return
 
+    # Context Retrieval --------------------------------------------------------
     def retrieve_contexts(self, query, collection_name):
         # 어떻게 retrieve...
         existing_collections = self.client.list_collections()
         if not any(
-            collection.name == collection_name
-            for collection in existing_collections
+            collection.name == collection_name for collection in existing_collections
         ):
-            print ("error handling: collection name doesn't exist in client")
+            print("error handling: collection name doesn't exist in client")
             return False
 
         # get collection
@@ -100,17 +96,16 @@ class VectorDBManager:
         # override the default similarity search function to display scores
         @chain
         def retriever(query: str) -> List[Document]:
-            docs, scores = zip(*vector_store.similarity_search_with_score(query, k=5))
+            docs, scores = zip(*vector_store.similarity_search_with_score(query, k=4))
             for doc, score in zip(docs, scores):
                 doc.metadata["score"] = score
 
             return docs
-        
+
         contexts = retriever.invoke(query)
 
-
         return contexts
-    
+
     # Query Expansion (Multiple Queries)
     def retrieve_contexts_with_multi_queries(self, query, collection_name, llm):
         # query -> llm -> multiple queries -> retrieval contexts
@@ -137,9 +132,11 @@ class VectorDBManager:
             collection_name=collection_name,
             embedding_function=self.embedding_model,
         )
-        
+
         retriever = MultiQueryRetriever(
-            retriever = vector_store.as_retriever(), llm_chain = llm_chain, parser_key = "lines"
+            retriever=vector_store.as_retriever(),
+            llm_chain=llm_chain,
+            parser_key="lines",
         )
 
         contexts = retriever.invoke(query)
@@ -156,28 +153,43 @@ class VectorDBManager:
 
         # 2. multiple queries => retrieve context from collection
 
-    def create_tool_with_collection(self, collection_name):
+    # Tool Creation ------------------------------------------------------------
+    def create_tool_with_collection(self, database):
+        # get collection
+        vector_store = Chroma(
+            client=self.client,
+            collection_name=database["dataset_name"],
+            embedding_function=self.embedding_model,
+        )
+
+        retriever = vector_store.as_retriever()
+
+        tool = create_retriever_tool(
+            retriever=retriever,
+            name=database["tool_name"],
+            description=database["tool_description"],
+        )
+
+        database_format = database["format"]
+
+        def format_contexts(docs):
+            # docs: str
+            formatted_contexts = database_format.format(context=docs)
+            return formatted_contexts
+
+        # Here, we can add context reranking, compression, etc by chaining
+
+        retriever_tool = tool | format_contexts
+
+        # return retriever_tool.as_tool()
+        return tool
+
+    def create_rag_chain_tool_with_collection(self, collection_name, llm):
         # get collection
         vector_store = Chroma(
             client=self.client,
             collection_name=collection_name,
             embedding_function=self.embedding_model,
-        )
-
-        tool = create_retriever_tool(
-            vector_store.as_retriever(),
-            "cbt_knowledge_retriever",
-            "searches and returns information about cognitive behavioral therapy",
-        )
-
-        return tool
-    
-    def create_rag_chain_tool_with_collection(self, collection_name, llm):
-        # get collection
-        vector_store = Chroma(
-            client = self.client, 
-            collection_name = collection_name,
-            embedding_function = self.embedding_model,
         )
 
         system_prompt = """
@@ -197,13 +209,13 @@ class VectorDBManager:
         rag_chain = (
             {
                 "context": retriever | format_docs,
-                "question": RunnablePassthrough(), 
+                "question": RunnablePassthrough(),
             }
-        | prompt
-        | llm
-        | StrOutputParser()
+            | prompt
+            | llm
+            | StrOutputParser()
         )
-    
+
         print("RAG Chain Schema: ", rag_chain.input_schema.schema())
 
         rag_tool = rag_chain.as_tool(
@@ -218,12 +230,14 @@ class VectorDBManager:
         existing_collections = self.client.list_collections()
         return existing_collections
 
+
 # ChromaDB
 
 # "client": chroma DB 전체 관리
 # "collection": table - dataset 종류 (cbt, 심리상담, qna)
 
 # cbt collection
+
 
 # TODO: Move this to a utils file
 def str_to_document(text: str):
@@ -242,6 +256,7 @@ def str_to_document(text: str):
 # TODO: Move this to a utils file
 def document_to_str(doc: Document):
     return f"page_content='{doc.page_content}' metadata={doc.metadata}"
+
 
 def format_docs(docs):
     return "\n\n".join(doc.page_content for doc in docs)
