@@ -1,5 +1,6 @@
 import sys
 
+from .script_csv_manager import ScriptCSVManager
 from .pdf_manager import PDFManager
 from .vector_db_manager import VectorDBManager
 from .knowledge_graph_manager import KnowledgeGraphManager
@@ -43,12 +44,10 @@ class CbtRAG:
             f"==== Create Indexing '{dataset_name}' at '{dataset_type} database' ===="
         )
 
-        if dataset_type == "vector":
-            # create collection at ChromaDB client
-            self.vector_db_manager.init_db(collection_name=dataset_name)
+        # process pdf files into manageable documents (text tokens)
+        docs = []
 
-            # process pdf files into manageable documents (text tokens)
-            docs = []
+        if files[0]["type"] == "pdf":
             for file in files:
                 print("    Processing file: " + file["path"])
                 pdf_manager = PDFManager(path_name=file["path"])
@@ -57,11 +56,22 @@ class CbtRAG:
                 # process pdf
                 docs.extend(pdf_manager.process_pdf(pages))
 
+        elif files[0]["type"] == "csv":
+            # only one file accepted for csv
+            for file in files:
+                print("    Processing file: " + file["path"])
+                script_csv_manager = ScriptCSVManager(path_name = file["path"])
+                df = script_csv_manager.load_csv()
+                docs.extend(script_csv_manager.process_csv(df))
+
+        if dataset_type == "vector":
+            # create collection at ChromaDB client
+            self.vector_db_manager.init_db(collection_name=dataset_name)
             # upload docs to vector database
             self.vector_db_manager.upload_docs(docs=docs, collection_name=dataset_name)
 
         elif dataset_type == "graph":
-            pass
+            self.knowledge_graph_manager.upload_docs(docs=docs, dataset_name = dataset_name)
 
         else:
             raise ValueError("Invalid dataset type")
@@ -115,8 +125,8 @@ class CbtRAG:
                 tools.append(tool)
 
             elif database_type == "graph":
-                pass
-
+                tool = self.knowledge_graph_manager.create_graph_chain_tool(database, self.chat_llm)
+                tools.append(tool)
             else:
                 raise ValueError("Invalid database type")
 
@@ -142,7 +152,7 @@ class CbtRAG:
         # 2. combine tools together as agents
         system_instruction = """You are a mental health counseling chatbot specialized in cognitive behavioral therapy (CBT). 
 
-        IMPORTANT: For EVERY response, you MUST use EVERY tools before generating your answer. You MUST use both "cognitive_behavioral_therapy_retriever" and "socratic_questioning_retriever" tools. Do not respond without first calling a tool.
+        IMPORTANT: For EVERY response, you MUST use EVERY tools before generating your answer. You MUST use "psychotherapy_retriever" tools. Do not respond without first calling a tool.
 
         Your main clients are teenagers and young adults in their early 20s who are familiar with social media. You are here to help them with their mental health issues. You can provide them with information about mental health, help them with their problems, and provide them with resources to help them.
 

@@ -74,17 +74,17 @@ def cli(mode):
         click.echo(f"       - {dataset}")
 
     # TESTING
-    sample_query = (
-        "I failed my exam. I think everyone else is smarter than me. What should I do?"
-    )
+    # sample_query = (
+    #     "I failed my exam. I think everyone else is smarter than me. What should I do?"
+    # )
 
-    sample_query_2 = "What is CBT?"
+    # sample_query_2 = "What is CBT?"
 
-    click.echo("")
-    click.echo(f"TESTING: Querying with sample query: {sample_query}")
+    # click.echo("")
+    # click.echo(f"TESTING: Querying with sample query: {sample_query}")
 
-    click.echo("Creating RAG Chain...")
-    cbt_rag.create_cbt_rag_chain(query=sample_query)
+    # click.echo("Creating RAG Chain...")
+    # cbt_rag.create_cbt_rag_chain(query=sample_query)
 
     # eval mode
     # chat mode

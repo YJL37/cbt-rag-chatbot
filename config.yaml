@@ -25,13 +25,19 @@ datasets:
     description: ""
     database_type: "graph"
     files:
-      - path: "./data/psychotherapy/an_introduction_to_counseling.pdf"
-        type: "pdf"
-      - path: "./data/psychotherapy/Theory and Practice of Counseling and Psychotherapy- Corey- 9ed.pdf"
-        type: "pdf"
+      # - path: "./data/psychotherapy/an_introduction_to_counseling.pdf"
+      #   type: "pdf"
+      # - path: "./data/psychotherapy/Theory and Practice of Counseling and Psychotherapy- Corey- 9ed.pdf"
+      #   type: "pdf"
       - path: "./data/psychotherapy/What_is_psychotherapy_today_Overview_of_psychother.pdf"
         type: "pdf"
-      
+  counseling_script_collection:
+    description: ""
+    database_type: "vector"
+    files:
+      - path: "./data/counseling_script/scripts.csv"
+        type: "csv"
+
 options:
   pre_retrieval:
     multi_query_expansion: true
@@ -44,6 +50,10 @@ options:
       tool_name: "socratic_questioning_retriever"
       tool_description: "Before counseling a user, AI should use this retriever to get the best socratic questioning techniques and practices. Searches general knowledge about socratic questioning techniques. Socratic Questioning is a most common CBT method. Any question related to socratic questioning should use this retriever. ."
       format: "Following text chunks divided by new line characters are the Socratic Questioning techniques that can be used to help you answer to user's question: {context}"
+    - dataset_name: "psychotherapy_collection"
+      tool_name: "psychotherapy_retriever"
+      tool_description: "Searches general knowledge about psychotherapy and its techniques."
+      format: "Following text chunks divided by new line characters are the psychotherapy techniques and strategies that can be used to help you answer to user's question: {context}"
   post_retrieval:
     context_top_k: 5
     context_reranking: false
