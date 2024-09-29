@@ -1,8 +1,10 @@
 import os
-from CbtRAG import CbtRAG, AgentGraph
-from dotenv import load_dotenv
 import pandas as pd
+from dotenv import load_dotenv
 from tabulate import tabulate
+
+# custom library
+from CbtRAG import CbtRAG, AgentGraph
 
 # command line interface
 import click
@@ -16,49 +18,13 @@ from deepeval.metrics import (
     AnswerRelevancyMetric,
     FaithfulnessMetric,
 )
-# python run.py --eval
-# python run.py --chat
-# from neo4j.debug import watch
-# from neo4j import GraphDatabase
 
+# to activate neo4j debug, uncomment codes below
+# from neo4j.debug import watch
 # watch("neo4j")
 
-
+# to load the .env file
 load_dotenv()
-
-# DEBUG for Neo4j connection
-# load_status = load_dotenv("Neo4j-32199abf-Created-2024-08-18.txt")
-# if load_status is False:
-#     raise RuntimeError("Environment variables not loaded.")
-
-
-# with GraphDatabase.driver(URI, auth=AUTH) as driver:
-#     driver.verify_connectivity()
-#     print("Connection established.")
-def get_evaluation_dataset():
-    """
-    Get evaluation dataset
-    """
-    # read csv file: /data/evaluation/ground_truth.csv
-    df = pd.read_csv("./data/evaluation/ground_truth.csv")
-    # store in list of dictionaries
-    # keys: input("User_Question"), expected_output("Best_Response")
-    test_cases = []
-    for i, row in df.iterrows():
-        test_cases.append(
-            {"input": row["User_Question"], "expected_output": row["Best_Response"]}
-        )
-
-    return test_cases
-
-
-def pretty_print_docs(docs):
-    print(
-        f"\n{'-' * 100}\n".join(
-            [f"Document {i+1}:\n\n" + d.page_content for i, d in enumerate(docs)]
-        )
-    )
-
 
 def create_index_cli(cbt_rag: CbtRAG):
     """
@@ -73,7 +39,6 @@ def create_index_cli(cbt_rag: CbtRAG):
         if val == "y":
             cbt_rag.create_indexing(dataset_name=dataset)
             click.echo(f"Indexing for dataset: {dataset} created successfully!")
-
 
 def print_query_config_cli(cbt_rag: CbtRAG):
     """
@@ -104,150 +69,107 @@ def print_query_config_cli(cbt_rag: CbtRAG):
             f"       - index: {dataset["dataset_name"]}, tool: {dataset["tool_name"]}"
         )
 
-
-# mode (required): 'eval' for evaluation, 'chat' for chat mode
-@click.command()
-@click.option("--eval", "mode", flag_value="eval", help="Run in evaluation mode.")
-@click.option("--chat", "mode", flag_value="chat", help="Run in chat mode.")
-def cli(mode):
+def get_evaluation_dataset():
     """
-    Command Line Interface for CBT-RAG Chatbot
-
-    @args
-    - mode: 'eval' for evaluation which returns evaluation metrics, 'chat' for interactive chat mode
+    Get evaluation dataset
     """
-    if mode != "eval" and mode != "chat":
-        raise ValueError("Please specify mode as 'eval' or 'chat'")
-
-    click.echo("Welcome to CBT-RAG chatbot ✨")
-    print_divider()
-    config = "./config.yaml"
-    cbt_rag = CbtRAG(config=config)
-
-    # 1. Create Indexing
-    click.echo("")
-    createIndex = click.prompt(
-        "Do you want to create indexing? (y/n)", type=str, default="n"
-    )
-    if createIndex == "y":
-        create_index_cli(cbt_rag)
-
-    # 2. Show Query Configurations
-    # click.echo("")
-    # print_divider()
-    # print_query_config_cli(cbt_rag)
-    # print_divider()
-
-    # 3. Create RAG Architecture (Agent Graph)
-    click.echo("Creating RAG Chatbot...")
-    graph = AgentGraph(cbt_rag)
-
-    if mode == "eval":
-        startEval = click.prompt(
-            "Do you want to start evaluation? (y/n)", type=str, default="n"
+    # read csv file: /data/evaluation/ground_truth.csv
+    df = pd.read_csv("./data/evaluation/ground_truth.csv")
+    # store in list of dictionaries
+    # keys: input("User_Question"), expected_output("Best_Response")
+    test_cases = []
+    for i, row in df.iterrows():
+        test_cases.append(
+            {"input": row["User_Question"], "expected_output": row["Best_Response"]}
         )
-        if startEval == "y":
-            click.echo("Evaluating RAG Chatbot...")
-            # define metrics
-            contextual_precision = ContextualPrecisionMetric()
-            contextual_recall = ContextualRecallMetric()
-            contextual_relevancy = ContextualRelevancyMetric()
-            answer_relevancy = AnswerRelevancyMetric()
-            faithfulness = FaithfulnessMetric()
 
-            # create a evaluation dataset
-            eval_dataset: list[dict] = get_evaluation_dataset()
-            # iterate through evaluation dataset
-            test_cases = []
-            for raw_test_case in eval_dataset:
-                # create test_cases by using output from `graph.query()`
-                output = graph.query(raw_test_case["input"])
-                actual_output = output.get("response")
+    return test_cases
 
-                retrieved_docs = []
+def eval_graph(graph: AgentGraph):
+    click.echo("Evaluating RAG Chatbot...")
+    # define metrics
+    contextual_precision = ContextualPrecisionMetric()
+    contextual_recall = ContextualRecallMetric()
+    contextual_relevancy = ContextualRelevancyMetric()
+    answer_relevancy = AnswerRelevancyMetric()
+    faithfulness = FaithfulnessMetric()
 
-                for sample_response in output["sample_responses"]:
-                    retrieved_docs.append(sample_response.page_content)
+    # create a evaluation dataset
+    eval_dataset: list[dict] = get_evaluation_dataset()
+    # iterate through evaluation dataset
+    test_cases = []
+    for raw_test_case in eval_dataset:
+        # create test_cases by using output from `graph.query()`
+        output = graph.query(raw_test_case["input"])
+        actual_output = output.get("response")
 
-                for cbt_context in output["cbt_contexts"]:
-                    retrieved_docs.append(cbt_context.page_content)
+        retrieved_docs = []
 
-                for socratic_context in output["socratic_contexts"]:
-                    retrieved_docs.append(socratic_context.page_content)
+        for sample_response in output["sample_responses"]:
+            retrieved_docs.append(sample_response.page_content)
 
-                # print("Retrieved Docs:")
-                # pretty_print_docs(retrieved_docs_in_str)
+        for cbt_context in output["cbt_contexts"]:
+            retrieved_docs.append(cbt_context.page_content)
 
-                test_case = LLMTestCase(
-                    input=raw_test_case["input"],
-                    actual_output=actual_output,
-                    expected_output=raw_test_case["expected_output"],
-                    retrieval_context=retrieved_docs,
-                )
-                test_cases.append(test_case)
+        for socratic_context in output["socratic_contexts"]:
+            retrieved_docs.append(socratic_context.page_content)
 
-            eval_result = pd.DataFrame()
-            # columns: input, expected_output, actual_output, contextual_precision, contextual_recall, contextual_relevancy, answer_relevancy, faithfulness
+        # print("Retrieved Docs:")
+        # pretty_print_docs(retrieved_docs_in_str)
 
-            for test_case in test_cases:
-                print_divider()
+        test_case = LLMTestCase(
+            input=raw_test_case["input"],
+            actual_output=actual_output,
+            expected_output=raw_test_case["expected_output"],
+            retrieval_context=retrieved_docs,
+        )
+    test_cases.append(test_case)
 
-                print(" Input: ", test_case.input)
-                print(" Expected Output: ", test_case.expected_output)
-                print(" Actual Output: ", test_case.actual_output)
-                # print("Retrieval Context: ", test_case.retrieval_context)
+    eval_result = pd.DataFrame()
+    # columns: input, expected_output, actual_output, contextual_precision, contextual_recall, contextual_relevancy, answer_relevancy, faithfulness
 
-                # calculate metrics
-                contextual_precision.measure(test_case)
-                print(" Contextual Precision Score: ", contextual_precision.score)
-                # print(" Contextual Precision Reason: ", contextual_precision.reason)
+    for test_case in test_cases:
+        print_divider()
 
-                contextual_recall.measure(test_case)
-                print(" Contextual Recall Score: ", contextual_recall.score)
-                # print(" Contextual Recall Reason: ", contextual_recall.reason)
+        print(" Input: ", test_case.input)
+        print(" Expected Output: ", test_case.expected_output)
+        print(" Actual Output: ", test_case.actual_output)
+        # print("Retrieval Context: ", test_case.retrieval_context
+        # calculate metrics
+        contextual_precision.measure(test_case)
+        print(" Contextual Precision Score: ", contextual_precision.score)
+        # print(" Contextual Precision Reason: ", contextual_precision.reason
+        contextual_recall.measure(test_case)
+        print(" Contextual Recall Score: ", contextual_recall.score)
+        # print(" Contextual Recall Reason: ", contextual_recall.reason
+        contextual_relevancy.measure(test_case)
+        print(" Contextual Relevancy Score: ", contextual_relevancy.score)
+        # print(" Contextual Relevancy Reason: ", contextual_relevancy.reason
+        answer_relevancy.measure(test_case)
+        print(" Answer Relevancy Score: ", answer_relevancy.score)
+        # print(" Answer Relevancy Reason: ", answer_relevancy.reason
+        faithfulness.measure(test_case)
+        print(" Faithfulness Score: ", faithfulness.score)
+        # print(" Faithfulness Reason: ", faithfulness.reason)
 
-                contextual_relevancy.measure(test_case)
-                print(" Contextual Relevancy Score: ", contextual_relevancy.score)
-                # print(" Contextual Relevancy Reason: ", contextual_relevancy.reason)
+    new_row = pd.DataFrame(
+        {
+            "input": [test_case.input],
+            "expected_output": [test_case.expected_output],
+            "actual_output": [test_case.actual_output],
+            "contextual_precision": [contextual_precision.score],
+            "contextual_recall": [contextual_recall.score],
+            "contextual_relevancy": [contextual_relevancy.score],
+            "answer_relevancy": [answer_relevancy.score],
+             "faithfulness": [faithfulness.score],
+        }
+    )
 
-                answer_relevancy.measure(test_case)
-                print(" Answer Relevancy Score: ", answer_relevancy.score)
-                # print(" Answer Relevancy Reason: ", answer_relevancy.reason)
+    eval_result = pd.concat([eval_result, new_row], ignore_index=True)
 
-                faithfulness.measure(test_case)
-                print(" Faithfulness Score: ", faithfulness.score)
-                # print(" Faithfulness Reason: ", faithfulness.reason)
+    return eval_result
 
-                new_row = pd.DataFrame(
-                    {
-                        "input": [test_case.input],
-                        "expected_output": [test_case.expected_output],
-                        "actual_output": [test_case.actual_output],
-                        "contextual_precision": [contextual_precision.score],
-                        "contextual_recall": [contextual_recall.score],
-                        "contextual_relevancy": [contextual_relevancy.score],
-                        "answer_relevancy": [answer_relevancy.score],
-                        "faithfulness": [faithfulness.score],
-                    }
-                )
-
-                eval_result = pd.concat([eval_result, new_row], ignore_index=True)
-
-            print_divider()
-
-            # save eval result as csv file
-            eval_result.to_csv("./data/evaluation/eval_result.csv", index=False)
-
-            click.echo(
-                "Evaluation completed! Results saved in ./data/evaluation/eval_result.csv"
-            )
-
-    elif mode == "chat":
-        click.echo("Not supported yet!")
-
-    print_divider()
-    click.echo("Printing out evaluation results...")
-    # 4. printout metrics from /data/evaluation/eval_result.csv
+def visualize_eval_result():
     eval_result = pd.read_csv("./data/evaluation/eval_result.csv")
     columns_to_display = [
         "input",
@@ -285,13 +207,70 @@ def cli(mode):
 
     print_divider()
 
+# mode (required): 'eval' for evaluation, 'chat' for chat mode
+@click.command()
+@click.option("--eval", "mode", flag_value="eval", help="Run in evaluation mode.")
+@click.option("--chat", "mode", flag_value="chat", help="Run in chat mode.")
+def cli(mode):
+    """
+    Command Line Interface for CBT-RAG Chatbot
 
-# cli helper
-def print_divider():
-    click.echo(
-        "------------------------------------------------------------------------------------------------------------------"
+    @args
+    - mode: 'eval' for evaluation which returns evaluation metrics, 'chat' for interactive chat mode
+    """
+    if mode != "eval" and mode != "chat":
+        raise ValueError("Please specify mode as 'eval' or 'chat'")
+
+    click.echo("Welcome to CBT-RAG chatbot ✨")
+    print_divider()
+    config = "./config.yaml"
+    cbt_rag = CbtRAG(config=config)
+
+    # 1. Create Indexing
+    click.echo("")
+    createIndex = click.prompt(
+        "Do you want to create indexing? (y/n)", type=str, default="n"
     )
+    if createIndex == "y":
+        create_index_cli(cbt_rag)
 
+    # 2. Show Query Configurations
+    click.echo("")
+    print_divider()
+    print_query_config_cli(cbt_rag)
+    print_divider()
+
+    # 3. Create RAG Architecture (Agent Graph)
+    click.echo("Creating RAG Chatbot...")
+    graph = AgentGraph(cbt_rag)
+
+    if mode == "eval":
+        startEval = click.prompt(
+            "Do you want to start evaluation? (y/n)", type=str, default="n"
+        )
+        if startEval == "y":
+            click.echo("Evaluating RAG Chatbot...")
+
+            # get evaluate result
+            eval_result = eval_graph(graph)
+
+            print_divider()
+
+            # save eval result as csv file
+            eval_result.to_csv("./data/evaluation/eval_result.csv", index=False)
+
+            click.echo(
+                "Evaluation completed! Results saved in ./data/evaluation/eval_result.csv"
+            )
+
+    elif mode == "chat":
+        click.echo("Not supported yet!")
+
+    print_divider()
+    click.echo("Printing out evaluation results...")
+    # 4. printout metrics from /data/evaluation/eval_result.csv
+
+    visualize_eval_result()
 
 if __name__ == "__main__":
     # .env file should contain Google Generative AI API key
@@ -299,3 +278,17 @@ if __name__ == "__main__":
         raise ValueError("Please set GOOGLE_API_KEY in .env file")
 
     cli()  # pylint: disable=no-value-for-parameter
+
+
+# Helper Functions -----------------------------------------------------------------------
+def print_divider():
+    click.echo(
+        "------------------------------------------------------------------------------------------------------------------"
+    )
+
+def pretty_print_docs(docs):
+    print(
+        f"\n{'-' * 100}\n".join(
+            [f"Document {i+1}:\n\n" + d.page_content for i, d in enumerate(docs)]
+        )
+    )

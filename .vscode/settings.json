@@ -1,6 +1,5 @@
 {
-    "cSpell.words": [
-        "dotenv",
-        "reranking"
-    ]
+  "cSpell.words": ["dotenv", "reranking"],
+  "editor.defaultFormatter": "charliermarsh.ruff",
+  "editor.formatOnSave": true
 }

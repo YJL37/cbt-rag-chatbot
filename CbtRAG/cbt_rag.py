@@ -11,8 +11,6 @@ from langchain_core.prompts import PromptTemplate
 
 from langgraph.prebuilt import create_react_agent
 
-from langgraph.checkpoint.memory import MemorySaver
-
 
 class CbtRAG:
     """
@@ -36,12 +34,22 @@ class CbtRAG:
             KnowledgeGraphManager()
         )  # Neo4j instance (single graph db)
 
+    # GETTERS ---------------------------------------------------------------------------
     def get_vector_db_manager(self):
         return self.vector_db_manager
+
     def get_chat_llm(self):
         return self.chat_llm
 
+    # RAG: Indexing ---------------------------------------------------------------------
     def create_indexing(self, dataset_name):
+        """
+        function to create indexing
+
+        @args
+        - dataset_name
+        """
+
         dataset_type = self.config.get_dataset_type(dataset_name)
         files = self.config.get_dataset_files(dataset_name)
 
@@ -49,9 +57,9 @@ class CbtRAG:
             f"==== Create Indexing '{dataset_name}' at '{dataset_type} database' ===="
         )
 
-        # process pdf files into manageable documents (text tokens)
         docs = []
 
+        # process pdf files into manageable documents (text tokens)
         if files[0]["type"] == "pdf":
             for file in files:
                 print("    Processing file: " + file["path"])
@@ -60,12 +68,12 @@ class CbtRAG:
                 pages = pdf_manager.load_pdf()
                 # process pdf
                 docs.extend(pdf_manager.process_pdf(pages))
-
+        # process cvs files into manageable documents (text tokens)
         elif files[0]["type"] == "csv":
             # only one file accepted for csv
             for file in files:
                 print("    Processing file: " + file["path"])
-                script_csv_manager = ScriptCSVManager(path_name = file["path"])
+                script_csv_manager = ScriptCSVManager(path_name=file["path"])
                 df = script_csv_manager.load_csv()
                 docs.extend(script_csv_manager.process_csv(df))
 
@@ -76,7 +84,10 @@ class CbtRAG:
             self.vector_db_manager.upload_docs(docs=docs, collection_name=dataset_name)
 
         elif dataset_type == "graph":
-            self.knowledge_graph_manager.upload_docs(docs=docs, dataset_name = dataset_name)
+            # upload docs to graph database on Neo4j instance
+            self.knowledge_graph_manager.upload_docs(
+                docs=docs, dataset_name=dataset_name
+            )
 
         else:
             raise ValueError("Invalid dataset type")
@@ -130,7 +141,9 @@ class CbtRAG:
                 tools.append(tool)
 
             elif database_type == "graph":
-                tool = self.knowledge_graph_manager.create_graph_chain_tool(database, self.chat_llm)
+                tool = self.knowledge_graph_manager.create_graph_chain_tool(
+                    database, self.chat_llm
+                )
                 tools.append(tool)
             else:
                 raise ValueError("Invalid database type")
