@@ -12,12 +12,12 @@ As teenage anxiety and depression rise, driven in part by social media, the rese
 
 ## Getting Started
 Install packages
-'''bash
+```bash
 pip install -r requirements.txt
-'''
+```
 
 Run Python script for CBT RAG CLI
-'''bash
+```bash
 python run.py --eval
-'''
+```
 
