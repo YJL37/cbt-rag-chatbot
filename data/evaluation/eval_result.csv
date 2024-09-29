@@ -1,0 +1,118 @@
+input,expected_output,actual_output,contextual_precision,contextual_recall,contextual_relevancy,answer_relevancy,faithfulness
+I think I failed the exam today. I’m such a failure.,"It seems you're upset because you think you failed the exam today. This setback must be weighting heavily on your mind. However, when it comes to considering your worth as a human being, it's important to define the criteria for failure. Especially, evaluating your value based on the result of one exam seems like an excessive judgment.
+So, instead of thinking that you are a failure, consider that a part of your study process failed. At the same time, try to distinguish whether the failure was because your performance didn’t meet your expectations or because you didn’t understand certain problems. If you address the issues this way, you can view it as a problem-solving process within the learning experience, rather than labeling yourself as a failure.","Let’s explore this thought together. Can you tell me more about the exam and how you feel about it? 
+",1.0,0.0,0.0,1.0,1.0
+"I’m having a conflict with my friend, and I’m so frustrated with them for not understanding my point of view.","You're feeling really upset because you had a fight with a friend. It's understandable—humans have a tendency to think from their own perspective, so sometimes it’s hard to fully understand the other person’s point of view. In situations like this, it’s important not just to leave things at the argument but also to reflect on what you might not have understood. It’s especially important to consider how your emotions may have led you to misunderstand the other person’s intentions. After that, you could try reaching out to your friend again. If you express that you didn’t fully understand their perspective and then clearly communicate your own thoughts, you might be able to reduce some of the hurt feelings and narrow the gap between your views.","It’s completely normal to feel frustrated when you feel misunderstood. It sounds like you’re experiencing a common emotional response to conflict: feeling unheard and unseen. I understand that you want your friend to see things from your perspective. 
+
+Let’s explore this together. Can you tell me more about the conflict and what’s making you feel frustrated? 
+",1.0,0.0,0.0,1.0,1.0
+"I don’t know how to balance my studies and my personal life, and I feel like I’m losing the connection I had with my friends.","It sounds like you're feeling upset because you feel distanced from your friends due to focusing so much on your studies. Dedicating yourself to something can sometimes bring a sense of loss in other areas of life. Balancing academics, work-life harmony, and maintaining friendships can be very challenging. In this situation, it might help to think carefully about what you truly want and write it down. Then, prioritize these desires, especially focusing on what’s most feasible to accomplish. By following through in order of priority, you may find a way to manage everything more effectively.","*  Do you feel like you're losing your friends because you're not spending enough time with them, or because you're feeling overwhelmed and stressed, and you're taking it out on them?
+*  What's stopping you from spending more time with your friends? Is it your studies, or something else?
+*  What are some of the thoughts you have about your studies that are making it difficult to balance them with your personal life?
+*  What are the benefits of spending time with your friends?
+*  What are the benefits of studying?
+*  What are the consequences of not spending time with your friends?
+*  What are the consequences of not studying?
+*  Do you think you are being too hard on yourself?
+*  Is there a way to reframe your thoughts about your studies, so that they don't feel so overwhelming?
+*  What are some small steps you can take to start spending more time with your friends?
+*  How can you start to prioritize your well-being?
+
+By reflecting on these questions, you can start to identify and challenge the negative thoughts and beliefs that are contributing to your stress. You can also develop more balanced and realistic thoughts about your studies and your relationships. This can help you to develop a more sustainable and fulfilling life, where you can balance your academic pursuits with your personal life and your friendships.
+
+Remember, it's okay to ask for help. If you're struggling to manage your stress or to make changes on your own, don't hesitate to reach out to a therapist or counselor. They can provide you with personalized support and guidance. 
+",1.0,0.0,0.5,1.0,1.0
+My parents keep scolding me for not doing enough work when I’m already trying my best. Am I not enough?,"It sounds like you're feeling a lot of pressure from your parents, even though you're doing your best. Sometimes the difference in expectations between parents and children can create a heavy burden on the child. This doesn’t mean that you’re lacking in any way, but rather that the problem might stem from not clearly defining what those expectations are. Parents don’t always know everything about their child’s situation, and as a result, they often hold onto their own ideal standards rather than understanding the real circumstances.
+To bridge this gap, it’s important to clearly explain your physical, psychological, and emotional state to your parents. At the same time, it’s essential to understand exactly what your parents’ expectations are and then discuss together what can realistically be achieved. When it comes to taking action, it’s crucial to start with the simplest tasks first. I encourage you to work with your parents to set priorities both in terms of expectations and in what you can realistically accomplish.
+Lastly, remember that your worth isn’t determined by your parents. Take a moment to reflect on what you’ve achieved and what you’ve accomplished so far. Creating your own set of evaluation criteria based on this reflection can help you feel more confident in your efforts and progress.","Let's explore this situation together.  It sounds like you're feeling hurt and frustrated by your parents' criticisms.  It's natural to question your worth when the people you love express dissatisfaction with your efforts. Let's break down your feelings and thoughts to see if we can find some helpful perspectives.
+
+**Let's start with the thought ""Am I not enough?""**
+
+* **What evidence do you have to support this thought?**  Are your parents' criticisms the only evidence you have, or are there other situations that make you feel this way?
+* **Are there any alternative explanations for their behavior?** Could they be stressed, feeling overwhelmed themselves, or perhaps have unrealistic expectations?
+* **What is your definition of ""enough""?**  What would it take for you to feel like you are enough in their eyes?
+
+**Now, let's focus on their criticisms.**
+
+* **What specifically do they say that makes you feel like you're not doing enough?** 
+* **What are their expectations for you?** Do you know what they consider ""enough""?
+* **Have you tried communicating with them about how their words make you feel?** 
+* **What are your own goals and expectations for your work?**  Do they align with your parents' expectations?
+
+Remember, **your worth is not determined by your parents' opinions.**  You are valuable and capable, regardless of their criticisms.  It's important to acknowledge their perspective while also standing up for yourself and your efforts.
+
+**Here are some CBT strategies you can try:**
+
+* **Challenge your negative thoughts:**  When you find yourself thinking ""I'm not enough,"" ask yourself if that's truly true.  Look for evidence to support and contradict this thought.
+* **Communicate effectively:**  Have an open and honest conversation with your parents about how their words make you feel.  Try to understand their perspective, and explain your own.
+* **Set realistic goals:**  Make sure your goals are achievable and aligned with your own values.  Don't let your parents' expectations define your success.
+* **Focus on your strengths:**  Recognize your accomplishments and celebrate your efforts.  Focus on the positive aspects of your work.
+
+It's important to remember that you're not alone.  Many people struggle with criticism from loved ones.  By using CBT techniques, you can gain a better understanding of your thoughts and feelings, and develop healthier coping mechanisms. If you find it difficult to navigate this situation on your own, reaching out to a therapist specializing in CBT can provide further support and guidance. 
+",0.0,0.0,0.0,1.0,1.0
+"Everyone seems to be better than me. I wish I was as pretty as she was, or as smart as he was, or as rich as the people I see online.","You're feeling troubled because you find yourself thinking about others who seem smarter, more attractive, or wealthier than you. When you notice people who seem better off and start feeling inferior, it often stems from a desire within yourself to be better. However, it’s important to first consider whether these comparisons are fair. Comparisons driven by feelings of inferiority tend to focus only on the positive aspects of others, which can prevent you from seeing their flaws as well as your own strengths.
+Additionally, everyone has their own way of living. Not everyone moves at the same pace or achieves success at the same time. Therefore, the most important thing is to check if you’re making progress on your own path.","It sounds like you're feeling pretty down on yourself. It's natural to compare ourselves to others sometimes, but it can be really damaging to our self-esteem if we let it get out of control. 
+
+Let's take a closer look at what you're saying. You mentioned feeling like you're ""not as good as"" other people.  Can you tell me more about that feeling?  What makes you feel this way? 
+
+It's important to remember that everyone is unique and has their own strengths and weaknesses.  Just because someone seems to be doing better than you in one area doesn't mean they're better than you overall. 
+
+What are some of your strengths? What are you good at? What are you proud of? 
+",0.0,0.0,0.0,1.0,1.0
+"I feel envious of my friend. I know I’m supposed to support her, but I can’t help but feel jealous. What should I do?","You're feeling distressed because you're experiencing jealousy towards a friend. It can be upsetting and make you feel like you're a bad person, but it's important to understand that jealousy is a natural emotion that everyone feels at times. It doesn’t mean you dislike your friend; rather, it often arises when you want to do well but feel like you’re not achieving what you hoped for, especially when you compare yourself to someone who seems to be doing better.
+Jealousy isn’t inherently a bad emotion, and it doesn’t have to manifest negatively. What’s more important is how you manage these feelings. When you feel jealous, try to clarify what your own goals are and create a list of actions you can take to achieve them. If you can use these feelings as motivation to work towards your goals, your jealousy might become a source of strength.","It’s completely normal to experience envy. It’s a natural human emotion. However, it can be helpful to explore the thoughts behind those feelings. Let's break this down together.
+
+**1. Identify the Thoughts:**
+
+* Can you describe what you are envious of specifically?
+* What thoughts come to mind when you compare yourself to your friend?
+* Are you comparing yourself to an idealized version of her, or a realistic one?
+
+**2. Challenge the Thoughts:**
+
+* **Are these thoughts based on facts or assumptions?**  It’s easy to make assumptions about others' lives, but we often don’t have the full picture.
+* **Are these thoughts helpful?** Do they contribute to your well-being or are they causing you distress?
+* **What would you say to a friend who was feeling envious?** Would you offer them reassurance or encouragement? Try to be kind to yourself.
+
+**3. Consider Alternative Thoughts:**
+
+* **Focus on your own strengths and accomplishments.** What are you proud of?
+* **Shift your perspective.** Instead of focusing on what you lack, try to appreciate what you have.
+* **Remember that everyone is on their own journey.** There is no need to compare yourself to others.
+
+**4. Take Action:**
+
+* **Communicate with your friend.** If her success is causing you distress, it might be helpful to talk to her about it. Be honest about your feelings, but also be supportive.
+* **Focus on your own goals.** What do you want to achieve? Set realistic goals and work towards them.
+* **Practice gratitude.** Make a list of things you are grateful for. This can help shift your focus and improve your overall well-being.
+
+**CBT Tip:**  Envy can be a powerful emotion. By understanding the thoughts that fuel it, you can start to challenge them and develop a more balanced perspective. It's important to be patient with yourself and remember that change takes time.",0.0,0.0,0.0,1.0,1.0
+"Even if I go to a good university, I won’t be able to make it into a job, and I’ll live a monotonous life until I die. What’s the point of trying?","It sounds like you're feeling overwhelmed and increasingly skeptical because you keep getting the sense that the future looks bleak. This feeling often arises when you worry too much about the future. Such anxiety can deepen and lead to feelings of depression.
+To address this, try focusing less on worrying about the future and more on creating actionable steps that lead to a better future. Making a practical list of things you can do today to move towards your goals can help shift your focus away from anxiety. Remember, no one can predict the future, and thinking about it won't necessarily lead to a better outcome.
+Instead, concentrate on making today a good day. Effort does not betray you; even if it doesn't produce immediate results, it contributes to building a better life over time.","*  **Can you think of any examples where you've been successful in the past?**  Even small successes can demonstrate your ability to achieve goals.
+* **What evidence do you have to support the idea that you won't get a job?** Is it based on facts or on your own fears?
+* **What if you did get a job? How would that change your life?**  This can help you visualize a more positive future.
+* **What are some steps you could take to increase your chances of getting a job?**  Focusing on action can shift your mindset from hopelessness to hope.
+* **What would happen if you didn't go to university?**  Is that truly a worse outcome than the one you fear?
+* **What is a monotonous life to you?**  Is it truly a life without any meaning or purpose?
+* **What brings you joy or fulfillment in life?**  This helps you identify what's important to you, beyond a job.
+
+Remember, your thoughts are not facts. They are interpretations of the world. By questioning these interpretations, you can challenge the negative assumptions that are holding you back.  It's okay to feel discouraged, but it's important to keep moving forward.  What are your thoughts on these questions? 
+",1.0,0.0,0.5,1.0,1.0
+A friend that I’m close with is leaving the school. I don’t know what to do without her/him,"It sounds like you're worried and distressed because you've become distant from a close friend. Having a friend close by can be a great source of support, and the sense of loss you're feeling is quite natural. However, just because a close friend is no longer nearby doesn't mean you'll be completely alone. Remember that there are always people around you who care about and love you.
+What might help is to prepare yourself emotionally for the change, as if you were anticipating a friend moving away. Plan how you can accept and manage your feelings during this transition. At the same time, think about how to make the most of the remaining time with your friend, creating as many positive memories as possible.
+Lastly, keep in mind that your friendship doesn’t have to end just because your friend is moving away. Make plans to stay in touch, figure out how you will communicate and support each other, and set up future meetings. Creating and sticking to these plans can help you manage and accept the feelings of loss.","How might these questions help you to find a more balanced view of your situation? 
+",0.0,0.0,0.0,1.0,1.0
+I’m so tired. I just want to let go,"It sounds like you're feeling so overwhelmed and exhausted that you want to give up on everything. When you reach a point where you feel like letting go, it often means that excessive effort has contributed to your current situation. While appropriate effort can keep you motivated and energized, too much effort can lead to burnout and the desire to quit.
+First, identify what you might be overdoing and reduce it to a more manageable level. At the same time, consider how you can fill your remaining time with activities that prevent further burnout. If the workload is too much, seeking help is also a good option. Clarify what the core issues are and determine what actions are suitable for you moving forward. Taking these steps can help you manage your situation more effectively and avoid further exhaustion.","It sounds like you're feeling incredibly overwhelmed and exhausted. It's understandable to want to just ""let go"" when you're feeling this way. Can you tell me a little more about what's making you feel so tired? 
+
+It's important to remember that feeling tired isn't always just about physical exhaustion. It can also be a sign of emotional or mental fatigue.  
+
+Let's explore this together. Can you tell me about some of the things that are weighing on your mind right now? 
+",1.0,0.125,0.5,1.0,1.0
+Are you sure CBT can help me?,"Cognitive Behavioral Therapy (CBT) is indeed an effective approach. It’s a widely recognized method for influencing emotional change through adjustments in thinking and behavior. CBT is particularly helpful for addressing issues related to errors or distortions in thought patterns and when someone is unaware of or doesn’t know how to resolve these cognitive issues.
+However, CBT may have limitations when dealing with deeply ingrained emotional wounds or issues rooted in the unconscious. While it is very effective for many common problems, it may not always fully address the complexities of more profound emotional traumas.","What makes you question if CBT can help you? 
+",0.0,0.0,0.5,1.0,1.0
+What is CBT?,"Cognitive Behavioral Therapy (CBT) is a therapeutic approach designed to restructure distorted thoughts and beliefs that shape human cognition, behavior, and emotions. It focuses on identifying and modifying distorted and exaggerated beliefs and setting concrete behavioral goals to facilitate change. The process generally unfolds in four stages: first, recognizing the specific problems or challenges that need to be addressed; second, examining the patterns of thinking and behavior contributing to these issues; third, developing and practicing more realistic and constructive ways of thinking; and finally, implementing changes in behavior to support and reinforce these new thought patterns.
+While CBT is widely used and effective for many people, it does have limitations. It may not be as effective for very young children whose cognitive structures are still developing, or for individuals with significant unconscious issues. In such cases, CBT might struggle to address deeply ingrained or unconscious problems.","So, tell me, what do you understand about CBT? What makes it different from other types of therapy? What are your thoughts and feelings about CBT?
+",0.0,0.0,0.0,0.0,1.0

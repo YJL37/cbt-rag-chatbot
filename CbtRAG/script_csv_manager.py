@@ -1,48 +1,73 @@
 import pandas as pd
 from langchain.docstore.document import Document
 
-# ScriptCSVManager
-
-# - load csv as dataframe
-# - process csv to docs
 
 class ScriptCSVManager:
-    def __init__ (self, path_name):
+    """
+    - load csv
+    - process csv to documents
+    """
+
+    # path_name => chunks
+    def __init__(self, path_name):
         self.path_name = path_name
-        
+
     def load_csv(self):
-        data = pd.read_csv(self.path_name)
+        df = pd.read_csv(self.path_name)
 
-        # rename "context" column to "question"
-        # rename "Response" column to "response"
-        data = data.rename(columns = {'Context':'question'})
-        data = data.rename(columns = {'Response':'response'})
+        df = df.drop_duplicates(subset=["Context", "Response"])
 
-        data["response"] = data["response"].astype(str)
+        # rename "context" column to "user_question" for better readability
+        df = df.rename(columns={"Context": "user_question"})
+        df = df.rename(columns={"Response": "response"})
+        # print(df[pd.to_numeric(df["response"], errors="coerce").isna()])
 
-        # 5개의 row -> 1개의 row
-        # questions: "I'm going ..."
-        # response: "If everyone .... Hello... First thin"
+        df["response"] = df["response"].astype(str)
 
-        df_grouped = (
-            data.groupby("question")["response"]
-            .apply(lambda x: "\n".join(x))
-            .reset_index()
+        # Clean the user_question column
+        df["user_question_clean"] = df["user_question"].str.strip().str.lower()
+
+        # Sort the dataframe to ensure consistent results
+        df_sorted = df.sort_values("user_question_clean")
+
+        # Remove duplicates, keeping the first occurrence of each user_question
+        df_unique = df_sorted.drop_duplicates(
+            subset=["user_question_clean"], keep="first"
         )
 
-        return df_grouped
-    
-    def process_csv(self, df):
-        # df -> docs
-
-        docs = [] # Document[]
-        for index, row in df.iterrows():
-            doc = Document(
-                page_content = row["question"],
-                metadata = {"response": row["response"]},
+        # Combine responses for the same user_question
+        df_combined = (
+            df_unique.groupby("user_question_clean")
+            .agg(
+                {
+                    "user_question": "first",
+                    "response": lambda x: "---".join(dict.fromkeys(x)),
+                }
             )
-            docs.append(doc)
-        return docs
+            .reset_index(drop=True)
+        )
 
-        # => query를 page_content로 한다.
-        #     user's query => embedding => dataset에 있는 가장 가까운 embedding (raw data -> embedding)
+        # Final check for any remaining duplicates
+        df_final = df_combined.drop_duplicates(subset=["response"])
+
+        return df_final
+
+    def process_csv(self, df):
+        """
+        process df into text documents
+
+        @return docs: list of documents (langchain Document object)
+        """
+
+        # process df to list of documents
+        documents = []
+
+        for index, row in df.iterrows():
+            documents.append(
+                Document(
+                    page_content=row["user_question"],
+                    metadata={"row_id": index, "response": row["response"]},
+                )
+            )
+
+        return documents

@@ -78,7 +78,6 @@ class VectorDBManager:
 
     # Context Retrieval --------------------------------------------------------
     def retrieve_contexts(self, query, collection_name):
-        # 어떻게 retrieve...
         existing_collections = self.client.list_collections()
         if not any(
             collection.name == collection_name for collection in existing_collections
@@ -96,7 +95,7 @@ class VectorDBManager:
         # override the default similarity search function to display scores
         @chain
         def retriever(query: str) -> List[Document]:
-            docs, scores = zip(*vector_store.similarity_search_with_score(query, k=4))
+            docs, scores = zip(*vector_store.similarity_search_with_score(query, k=1))
             for doc, score in zip(docs, scores):
                 doc.metadata["score"] = score
 

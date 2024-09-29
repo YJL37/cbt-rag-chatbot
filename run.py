@@ -1,15 +1,55 @@
 import os
-from CbtRAG import CbtRAG
+from CbtRAG import CbtRAG, AgentGraph
 from dotenv import load_dotenv
+import pandas as pd
+from tabulate import tabulate
 
 # command line interface
 import click
 
+# evaluation library (DeepEval)
+from deepeval.test_case import LLMTestCase
+from deepeval.metrics import (
+    ContextualPrecisionMetric,
+    ContextualRecallMetric,
+    ContextualRelevancyMetric,
+    AnswerRelevancyMetric,
+    FaithfulnessMetric,
+)
 # python run.py --eval
 # python run.py --chat
+# from neo4j.debug import watch
+# from neo4j import GraphDatabase
+
+# watch("neo4j")
 
 
 load_dotenv()
+
+# DEBUG for Neo4j connection
+# load_status = load_dotenv("Neo4j-32199abf-Created-2024-08-18.txt")
+# if load_status is False:
+#     raise RuntimeError("Environment variables not loaded.")
+
+
+# with GraphDatabase.driver(URI, auth=AUTH) as driver:
+#     driver.verify_connectivity()
+#     print("Connection established.")
+def get_evaluation_dataset():
+    """
+    Get evaluation dataset
+    """
+    # read csv file: /data/evaluation/ground_truth.csv
+    df = pd.read_csv("./data/evaluation/ground_truth.csv")
+    # store in list of dictionaries
+    # keys: input("User_Question"), expected_output("Best_Response")
+    test_cases = []
+    for i, row in df.iterrows():
+        test_cases.append(
+            {"input": row["User_Question"], "expected_output": row["Best_Response"]}
+        )
+
+    return test_cases
 
 
 def pretty_print_docs(docs):
@@ -20,37 +60,26 @@ def pretty_print_docs(docs):
     )
 
 
-# mode (required): 'eval' for evaluation, 'chat' for chat mode
-@click.command()
-@click.option("--eval", "mode", flag_value="eval", help="Run in evaluation mode.")
-@click.option("--chat", "mode", flag_value="chat", help="Run in chat mode.")
-def cli(mode):
-    if mode != "eval" and mode != "chat":
-        raise ValueError("Please specify mode as 'eval' or 'chat'")
+def create_index_cli(cbt_rag: CbtRAG):
+    """
+    CLI to help user create indexings for configured datasets
+    """
+    click.echo("==== Here are datasets ready for Indexing ====")
+    datasets = cbt_rag.get_datasets()
+    for dataset in datasets:
+        val = click.prompt(
+            f"Create indexing for dataset: {dataset}? (y/n)", type=str, default="n"
+        )
+        if val == "y":
+            cbt_rag.create_indexing(dataset_name=dataset)
+            click.echo(f"Indexing for dataset: {dataset} created successfully!")
 
-    click.echo("Welcome to CBT-RAG chatbot ✨")
 
-    config = "./config.yaml"
-    cbt_rag = CbtRAG(config=config)
-
-    # 1. Create Indexing
-    click.echo("")
-    createIndex = click.prompt(
-        "Do you want to create indexing? (y/n)", type=str, default="n"
-    )
-    if createIndex == "y":
-        click.echo("==== Loading Dataset Configurations... ====")
-        datasets = cbt_rag.get_datasets()
-        for dataset in datasets:
-            val = click.prompt(
-                f"Create indexing for dataset: {dataset}? (y/n)", type=str, default="n"
-            )
-            if val == "y":
-                cbt_rag.create_indexing(dataset_name=dataset)
-                click.echo(f"Indexing for dataset: {dataset} created successfully!")
-
+def print_query_config_cli(cbt_rag: CbtRAG):
+    """
+    CLI to print query configurations
+    """
     # 2. Context Retrieval (eval)
-    click.echo("")
     click.echo("Ready to query with following options!")
     # pre-retrieval options
     click.echo("    Pre-Retrieval:")
@@ -71,23 +100,197 @@ def cli(mode):
     click.echo("    Indexing:")
     datasets = cbt_rag.get_retrieval_datasets()
     for dataset in datasets:
-        click.echo(f"       - {dataset}")
+        click.echo(
+            f"       - index: {dataset["dataset_name"]}, tool: {dataset["tool_name"]}"
+        )
 
-    # TESTING
-    # sample_query = (
-    #     "I failed my exam. I think everyone else is smarter than me. What should I do?"
-    # )
 
-    # sample_query_2 = "What is CBT?"
+# mode (required): 'eval' for evaluation, 'chat' for chat mode
+@click.command()
+@click.option("--eval", "mode", flag_value="eval", help="Run in evaluation mode.")
+@click.option("--chat", "mode", flag_value="chat", help="Run in chat mode.")
+def cli(mode):
+    """
+    Command Line Interface for CBT-RAG Chatbot
 
+    @args
+    - mode: 'eval' for evaluation which returns evaluation metrics, 'chat' for interactive chat mode
+    """
+    if mode != "eval" and mode != "chat":
+        raise ValueError("Please specify mode as 'eval' or 'chat'")
+
+    click.echo("Welcome to CBT-RAG chatbot ✨")
+    print_divider()
+    config = "./config.yaml"
+    cbt_rag = CbtRAG(config=config)
+
+    # 1. Create Indexing
+    click.echo("")
+    createIndex = click.prompt(
+        "Do you want to create indexing? (y/n)", type=str, default="n"
+    )
+    if createIndex == "y":
+        create_index_cli(cbt_rag)
+
+    # 2. Show Query Configurations
     # click.echo("")
-    # click.echo(f"TESTING: Querying with sample query: {sample_query}")
+    # print_divider()
+    # print_query_config_cli(cbt_rag)
+    # print_divider()
 
-    # click.echo("Creating RAG Chain...")
-    # cbt_rag.create_cbt_rag_chain(query=sample_query)
+    # 3. Create RAG Architecture (Agent Graph)
+    click.echo("Creating RAG Chatbot...")
+    graph = AgentGraph(cbt_rag)
 
-    # eval mode
-    # chat mode
+    if mode == "eval":
+        startEval = click.prompt(
+            "Do you want to start evaluation? (y/n)", type=str, default="n"
+        )
+        if startEval == "y":
+            click.echo("Evaluating RAG Chatbot...")
+            # define metrics
+            contextual_precision = ContextualPrecisionMetric()
+            contextual_recall = ContextualRecallMetric()
+            contextual_relevancy = ContextualRelevancyMetric()
+            answer_relevancy = AnswerRelevancyMetric()
+            faithfulness = FaithfulnessMetric()
+
+            # create a evaluation dataset
+            eval_dataset: list[dict] = get_evaluation_dataset()
+            # iterate through evaluation dataset
+            test_cases = []
+            for raw_test_case in eval_dataset:
+                # create test_cases by using output from `graph.query()`
+                output = graph.query(raw_test_case["input"])
+                actual_output = output.get("response")
+
+                retrieved_docs = []
+
+                for sample_response in output["sample_responses"]:
+                    retrieved_docs.append(sample_response.page_content)
+
+                for cbt_context in output["cbt_contexts"]:
+                    retrieved_docs.append(cbt_context.page_content)
+
+                for socratic_context in output["socratic_contexts"]:
+                    retrieved_docs.append(socratic_context.page_content)
+
+                # print("Retrieved Docs:")
+                # pretty_print_docs(retrieved_docs_in_str)
+
+                test_case = LLMTestCase(
+                    input=raw_test_case["input"],
+                    actual_output=actual_output,
+                    expected_output=raw_test_case["expected_output"],
+                    retrieval_context=retrieved_docs,
+                )
+                test_cases.append(test_case)
+
+            eval_result = pd.DataFrame()
+            # columns: input, expected_output, actual_output, contextual_precision, contextual_recall, contextual_relevancy, answer_relevancy, faithfulness
+
+            for test_case in test_cases:
+                print_divider()
+
+                print(" Input: ", test_case.input)
+                print(" Expected Output: ", test_case.expected_output)
+                print(" Actual Output: ", test_case.actual_output)
+                # print("Retrieval Context: ", test_case.retrieval_context)
+
+                # calculate metrics
+                contextual_precision.measure(test_case)
+                print(" Contextual Precision Score: ", contextual_precision.score)
+                # print(" Contextual Precision Reason: ", contextual_precision.reason)
+
+                contextual_recall.measure(test_case)
+                print(" Contextual Recall Score: ", contextual_recall.score)
+                # print(" Contextual Recall Reason: ", contextual_recall.reason)
+
+                contextual_relevancy.measure(test_case)
+                print(" Contextual Relevancy Score: ", contextual_relevancy.score)
+                # print(" Contextual Relevancy Reason: ", contextual_relevancy.reason)
+
+                answer_relevancy.measure(test_case)
+                print(" Answer Relevancy Score: ", answer_relevancy.score)
+                # print(" Answer Relevancy Reason: ", answer_relevancy.reason)
+
+                faithfulness.measure(test_case)
+                print(" Faithfulness Score: ", faithfulness.score)
+                # print(" Faithfulness Reason: ", faithfulness.reason)
+
+                new_row = pd.DataFrame(
+                    {
+                        "input": [test_case.input],
+                        "expected_output": [test_case.expected_output],
+                        "actual_output": [test_case.actual_output],
+                        "contextual_precision": [contextual_precision.score],
+                        "contextual_recall": [contextual_recall.score],
+                        "contextual_relevancy": [contextual_relevancy.score],
+                        "answer_relevancy": [answer_relevancy.score],
+                        "faithfulness": [faithfulness.score],
+                    }
+                )
+
+                eval_result = pd.concat([eval_result, new_row], ignore_index=True)
+
+            print_divider()
+
+            # save eval result as csv file
+            eval_result.to_csv("./data/evaluation/eval_result.csv", index=False)
+
+            click.echo(
+                "Evaluation completed! Results saved in ./data/evaluation/eval_result.csv"
+            )
+
+    elif mode == "chat":
+        click.echo("Not supported yet!")
+
+    print_divider()
+    click.echo("Printing out evaluation results...")
+    # 4. printout metrics from /data/evaluation/eval_result.csv
+    eval_result = pd.read_csv("./data/evaluation/eval_result.csv")
+    columns_to_display = [
+        "input",
+        "contextual_precision",
+        "contextual_recall",
+        "contextual_relevancy",
+        "answer_relevancy",
+        "faithfulness",
+    ]
+
+    # Create a new DataFrame with only the columns we want to display
+    display_df = eval_result[columns_to_display]
+    metric_columns = [
+        "contextual_precision",
+        "contextual_recall",
+        "contextual_relevancy",
+        "answer_relevancy",
+        "faithfulness",
+    ]
+    display_df[metric_columns] = display_df[metric_columns].round(2)
+    # Create the table
+    table = tabulate(display_df, headers="keys", tablefmt="grid", showindex=False)
+
+    # Print the table
+    print("Evaluation Results:")
+    print(table)
+
+    # Calculate and print summary statistics
+    print("\nSummary Statistics:")
+    summary_stats = (
+        display_df[metric_columns].agg(["mean", "median", "min", "max"]).round(2)
+    )
+    summary_table = tabulate(summary_stats, headers="keys", tablefmt="grid")
+    print(summary_table)
+
+    print_divider()
+
+
+# cli helper
+def print_divider():
+    click.echo(
+        "------------------------------------------------------------------------------------------------------------------"
+    )
 
 
 if __name__ == "__main__":
@@ -96,20 +299,3 @@ if __name__ == "__main__":
         raise ValueError("Please set GOOGLE_API_KEY in .env file")
 
     cli()  # pylint: disable=no-value-for-parameter
-
-    # cbt_rag = CbtRAG()
-
-    # cbt_rag.create_indexing(dataset_name = "cbt_collection",
-    #                         path_names = ["./data/cbt_and_techniques/Cognitive_Behavioral_Therapy_Strategies.pdf",
-    #                                    "./data/cbt_and_techniques/therapists_guide_to_brief_cbtmanual.pdf",
-    #                                    "./data/cbt_and_techniques/wellbeing-team-cbt-workshop-booklet-2016.pdf"]
-    #                         )
-
-    # sample_query = "What is CBT?"
-    # contexts = cbt_rag.retrieve_contexts(
-    #     dataset_name="cbt_collection", query = sample_query
-    # )
-    # print("Retrieved Contexts: " )
-    # pretty_print_docs(contexts)
-
-    # cbt_rag.query_with_tools(sample_query, "cbt_collection")

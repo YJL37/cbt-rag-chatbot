@@ -36,6 +36,11 @@ class CbtRAG:
             KnowledgeGraphManager()
         )  # Neo4j instance (single graph db)
 
+    def get_vector_db_manager(self):
+        return self.vector_db_manager
+    def get_chat_llm(self):
+        return self.chat_llm
+
     def create_indexing(self, dataset_name):
         dataset_type = self.config.get_dataset_type(dataset_name)
         files = self.config.get_dataset_files(dataset_name)
